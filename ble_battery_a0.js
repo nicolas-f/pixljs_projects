@@ -1,8 +1,5 @@
 function onSecond() {
   volts = analogRead(A0) * 3.48 * 2.1;
-  var data = {
-    v:Math.round(volts*100)/100
-  };
   NRF.setAdvertising([
       {0x180F : [Math.round(Math.min(1, volts / 4.22)  * 100)]},
     ]);

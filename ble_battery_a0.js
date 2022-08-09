@@ -4,7 +4,7 @@ function onSecond() {
     v:Math.round(volts*100)/100
   };
   NRF.setAdvertising([
-      {0x180F : [volts]},
+      {0x180F : [Math.round(Math.min(1, volts / 4.22)  * 100)]},
     ]);
   // If graphics is defined
   if (global.g) {
@@ -21,5 +21,4 @@ function onSecond() {
     g.flip();
   }
 }
-setInterval(onSecond, 1000);
-
+setInterval(onSecond, 5000);

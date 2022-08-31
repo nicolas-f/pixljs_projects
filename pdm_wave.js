@@ -1,10 +1,10 @@
 
-var bufA = new Int16Array(128);
-var bufB = new Int16Array(128);
+var bufA = new Int16Array(256);
+var bufB = new Int16Array(256);
 var canWrite = false;
-var buffer = new Int16Array(128);
+var buffer = new Int16Array(256);
 
-var sample_rate = 31250;
+var sample_rate = 15625;
 
 function onSamples(samples) {
   if(canWrite) {
@@ -59,7 +59,15 @@ function evaluateFrequency() {
   return 0;
 }
 
+function getBatteryVoltage() {
+  return analogRead(A0) * 3.48 * 2.1;
+}
+
 function onTimer() {
+  var volts = getBatteryVoltage();
+  NRF.setAdvertising([
+      {0x180F : [Math.round(Math.min(1, (volts - 3.2) / 1.02)  * 100)]},
+    ]);
   g.clear();
   g.moveTo(0,32 + (buffer[0] / 10));
   for (var x=1;x<128 && x < buffer.length ;x++) {
@@ -73,5 +81,5 @@ function onTimer() {
 }
 
 // Update temperature every 2 seconds
-setInterval(onTimer,500);
+setInterval(onTimer,2000);
 

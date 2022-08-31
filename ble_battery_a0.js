@@ -1,5 +1,5 @@
 function onSecond() {
-  volts = analogRead(A0) * 3.48 * 2.1;
+  volts = analogRead(A0) * E.getAnalogVRef() * 2.213;
   NRF.setAdvertising([
       {0x180F : [Math.round(Math.min(1, volts / 4.22)  * 100)]},
     ]);

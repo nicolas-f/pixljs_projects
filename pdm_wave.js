@@ -60,7 +60,9 @@ function evaluateFrequency() {
 }
 
 function getBatteryVoltage() {
-  return analogRead(A0) * E.getAnalogVRef() * 2.213;
+  var sumValue = 0;
+  for(i=0;i<10;i++) sumValue += analogRead(A0) * E.getAnalogVRef();
+  return (sumValue / 10.0) * 2.213;
 }
 
 function onTimer() {

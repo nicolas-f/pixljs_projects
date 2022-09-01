@@ -59,14 +59,8 @@ function evaluateFrequency() {
   return 0;
 }
 
-function getBatteryVoltage() {
-  var sumValue = 0;
-  for(i=0;i<10;i++) sumValue += analogRead(A0) * E.getAnalogVRef();
-  return (sumValue / 10.0) * 2.213;
-}
-
 function onTimer() {
-  var volts = getBatteryVoltage();
+  volts = analogRead(A0) * E.getAnalogVRef() * 2.213;
   NRF.setAdvertising([
       {0x180F : [Math.round(Math.min(1, (volts - 3.2) / 1.02)  * 100)]},
     ]);
@@ -83,5 +77,5 @@ function onTimer() {
 }
 
 // Update temperature every 2 seconds
-setInterval(onTimer,2000);
+setInterval(onTimer,500);
 

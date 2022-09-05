@@ -9,8 +9,8 @@ var sample_rate = 15625;
 function onSamples(samples) {
   if(canWrite) {
     buffer.set(samples);
-    canWrite = false;
   }  
+  canWrite = false;
 }
 
 Pdm.stop();
@@ -75,15 +75,16 @@ function onTimer() {
 
 
 var tm = 0;
+Pixl.setLCDPower(false);
     
 setWatch(function() {
   if(tm == 0) {
+    Pixl.setLCDPower(true);
     // Update temperature every 2 seconds
     tm = setInterval(onTimer,500);
   } else {
     clearInterval(tm);
     tm = 0;
-    g.clear();
-    g.flip();
+    Pixl.setLCDPower(false);
   }
 }, BTN2, {edge:"rising", debounce:50, repeat:true});

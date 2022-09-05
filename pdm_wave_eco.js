@@ -9,8 +9,8 @@ var sample_rate = 15625;
 function onSamples(samples) {
   if(canWrite) {
     buffer.set(samples);
+    canWrite = false;
   }  
-  canWrite = false;
 }
 
 Pdm.stop();

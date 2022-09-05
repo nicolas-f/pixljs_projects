@@ -61,21 +61,29 @@ function evaluateFrequency() {
 
 function onTimer() {
   volts = analogRead(A0) * E.getAnalogVRef() * 2.213;
-  NRF.setAdvertising([
-      {0x180F : [Math.round(Math.min(1, (volts - 3.2) / 1.02)  * 100)]},
-    ]);
   g.clear();
   g.moveTo(0,32 + (buffer[0] / 10));
   for (var x=1;x<128 && x < buffer.length ;x++) {
     g.lineTo(x,32 + (buffer[x] / 10));
   }
   g.setFontBitmap();
-  g.drawString("Frequency: " + evaluateFrequency() + " Hz");
+  g.drawString("Frequency: " + evaluateFrequency() + " Hz - "+volts.toFixed(2) + " V");
   // Use a large font for the value itself
   g.flip();
   canWrite = true;
 }
 
-// Update temperature every 2 seconds
-setInterval(onTimer,500);
 
+var tm = 0;
+    
+setWatch(function() {
+  if(tm == 0) {
+    // Update temperature every 2 seconds
+    tm = setInterval(onTimer,500);
+  } else {
+    clearInterval(tm);
+    tm = 0;
+    g.clear();
+    g.flip();
+  }
+}, BTN2, {edge:"rising", debounce:50, repeat:true});

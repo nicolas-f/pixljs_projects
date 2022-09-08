@@ -1,3 +1,5 @@
+var Averager = require("Averager").Averager;
+var voltageAverager = new Averager({scale:500});
 
 var bufA = new Int16Array(256);
 var bufB = new Int16Array(256);
@@ -60,22 +62,21 @@ function evaluateFrequency() {
 }
 
 function onTimer() {
-  volts = analogRead(A0) * E.getAnalogVRef() * 2.213;
+  voltageAverager.add(analogRead(A0) * E.getAnalogVRef() * 2.213);
   g.clear();
   g.moveTo(0,32 + (buffer[0] / 10));
   for (var x=1;x<128 && x < buffer.length ;x++) {
     g.lineTo(x,32 + (buffer[x] / 10));
   }
   g.setFontBitmap();
-  g.drawString("Frequency: " + evaluateFrequency() + " Hz - "+volts.toFixed(2) + " V");
+  g.drawString(voltageAverager.series.hours.getCurrent()[voltageAverager.series.hours.lastBucket].toFixed(2) + " V - Frequency: " + evaluateFrequency() + " Hz");
   // Use a large font for the value itself
   g.flip();
   canWrite = true;
 }
 
 
-var tm = 0;
-Pixl.setLCDPower(false);
+var tm = setInterval(onTimer,500);
     
 setWatch(function() {
   if(tm == 0) {

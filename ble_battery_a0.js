@@ -1,7 +1,11 @@
+var Averager = require("Averager").Averager;
+var voltageAverager = new Averager({scale:500});
+
 function onSecond() {
-  volts = analogRead(A0) * E.getAnalogVRef() * 2.213;
+  voltageAverager.add(analogRead(A0) * E.getAnalogVRef() * 2.213);
+  volts = voltageAverager.series.hours.getCurrent()[voltageAverager.series.hours.lastBucket];
   NRF.setAdvertising([
-      {0x180F : [Math.round(Math.min(1, volts / 4.22)  * 100)]},
+      {0x180F : [Math.round(Math.min(1, (volts - 3.2) / (4.22 - 3.2))  * 100)]},
     ]);
   // If graphics is defined
   if (global.g) {

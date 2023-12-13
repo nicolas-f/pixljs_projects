@@ -22,6 +22,14 @@ Graphics.prototype.setFontPixeloidSans = function(scale) {
   );
 };
 
+function disableButtons() {
+  for(id=0;id<4;id++) {
+    if(button_watch[id] > 0) {
+      clearWatch(button_watch[id]);
+    }
+    button_watch[id] = 0;
+  }
+}
 
 
 
@@ -30,21 +38,21 @@ function homeScreen() {
   LED.write(0);
   g.clear();
   g.setFontAlign(-1, -1);
-  g.setFontPixeloidSans(1);
+  g.setFontPixeloidSans(0.5);
   var t = new Date(); // get the current date and time
-  var time_date = t.getFullYear()+"/"+("0"+t.getMonth()).substr(-2)+"/"+("0"+t.getDay()).substr(-2);
+  print(t);
+  var time_date = t.getFullYear()+"/"+("0"+(t.getMonth()+1)).substr(-2)+"/"+("0"+t.getDate()).substr(-2);
   g.drawString(time_date, g.getWidth() / 2 - g.stringMetrics(time_date).width / 2, 0);
   var time = t.getHours()+":"+("0"+t.getMinutes()).substr(-2);
   g.drawString(time, g.getWidth() / 2 - g.stringMetrics(time).width / 2,  g.stringMetrics(time_date).height);
   g.flip();
-  // test train crossing
   disableButtons();
   if(idRefreshInterval > 0) {
     clearTimeout(idRefreshInterval);
   }
   var next_minute = Date();
   next_minute.setHours(next_minute.getHours(), next_minute.getMinutes(), 0, 0);
-  idRefreshInterval = setTimeout(disabledScreen, next_minute + 60000 - Date());
+  idRefreshInterval = setTimeout(homeScreen, next_minute + 60000 - Date());
 }
 
 homeScreen();

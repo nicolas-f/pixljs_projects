@@ -7,6 +7,22 @@ var noiseLevel=-26.30;
 var gainCalibration=0.0;
 var bufA = new Int16Array(256);
 var bufB = new Int16Array(256);
+var gainChanged = false;
+
+function readGainCalibration() {
+  fp = require("Storage").open("gaincalib.cfg", 'r');
+  data=fp.readLine();
+  if(data) {
+      gainCalibration = parseFloat(data);
+  }
+}
+
+function writeGainCalibration() {
+  fp = require("Storage").open("gaincalib.cfg", 'w');
+  fp.write(gainCalibration.toFixed(1)+"\n");
+}
+
+readGainCalibration();
 
 var mainmenu = {
   "" : {
@@ -17,9 +33,9 @@ var mainmenu = {
   "Calibration" : {
     value : gainCalibration,
     min:-50,max:50,step:0.1,
-    onchange : v => { gainCalibration=v; }
+    onchange : v => { gainCalibration=v;gainChanged=true; }
   },
-  "Exit" : function() { homeScreen(); },
+  "Exit" : function() { if(gainChanged) {writeGainCalibration();gainChanged=false;} homeScreen(); },
 };
 
 function disableButtons() {
@@ -33,7 +49,6 @@ function disableButtons() {
 
 function homeScreen() {
   Pixl.setLCDPower(true);
-  LED.write(0);
   g.clear();
   g.setFontBitmap();
   var t = new Date(); // get the current date and time
@@ -47,6 +62,5 @@ function homeScreen() {
   disableButtons();
   button_watch[0] = setWatch(function() { disableButtons(); Pixl.menu(mainmenu); }, BTN1, {  repeat: true,  edge: 'rising'});
 }
-
 homeScreen();
 

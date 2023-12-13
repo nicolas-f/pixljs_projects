@@ -1,5 +1,6 @@
 var PIN_BUZZER = D6; // Yellow cable pin Buzzer is connected to
-
+var PIN_PDM_CLOCK = 5;
+var PIN_PDM_DIN = 6;
 var button_watch = [0,0,0,0];
 Bluetooth.setConsole(1);
 backlight = 0;
@@ -12,6 +13,8 @@ var bufB = new Int16Array(256);
 var gainChanged = false;
 var buzzerEnabled = false;
 var micEnabled = false;
+var sample_rate = 15625;
+
 
 function readGainCalibration() {
   fp = require("Storage").open("gaincalib.cfg", 'r');
@@ -42,6 +45,14 @@ var mainmenu = {
   "Exit" : function() { if(gainChanged) {writeGainCalibration();gainChanged=false;} homeScreen(); },
 };
 
+function onSamples(samples) {
+  var sum=0.0;
+  for (i = 1; i < samples.length; i++) {
+    sum+=samples[i]*samples[i];
+  }
+  noiseLevel = 10*log10(sqrt(sum/samples.length));
+}
+
 function disableButtons() {
   for(id=0;id<4;id++) {
     if(button_watch[id] > 0) {
@@ -57,6 +68,24 @@ function switchBuzzerState() {
     analogWrite(PIN_BUZZER,0.5,{freq:4000});
   } else {
     digitalWrite(PIN_BUZZER,0);
+  }
+  homeScreen();
+}
+
+function switchMicrophoneState() {
+  micEnabled=!micEnabled;
+  if(micEnabled) {
+    Pdm.setup({"clock" : PIN_PDM_CLOCK, "din" : PIN_PDM_DIN, frequency: sample_rate});
+    Pdm.init(onSamples, bufA, bufB);
+    Pdm.start();
+    if(idRefreshInterval > 0) {
+      clearInterval(idRefreshInterval);
+      idRefreshInterval = 0;
+    }
+    idRefreshInterval = setInterval(homeScreen, 250);
+  } else {
+    Pdm.stop();
+    Pdm.uninit();
   }
   homeScreen();
 }

@@ -29,7 +29,6 @@ function doInit() {
 
 
 function evaluateFrequency() {
-  "jit";
   var zeroCrossSample = 0;
   var zeroCrossDelay = 0;
   var do_break = false;

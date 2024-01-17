@@ -1,6 +1,6 @@
-var PIN_BUZZER = D9; // Yellow cable pin Buzzer is connected to
-var PIN_PDM_CLOCK = 5;
-var PIN_PDM_DIN = 6;
+var PIN_BUZZER = D5; // Yellow cable pin Buzzer is connected to
+var PIN_PDM_CLOCK = 8;
+var PIN_PDM_DIN = 9;
 var button_watch = [0,0,0,0];
 Bluetooth.setConsole(1);
 backlight = 0;

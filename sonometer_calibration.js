@@ -1,4 +1,4 @@
-var PIN_BUZZER = D6; // Yellow cable pin Buzzer is connected to
+var PIN_BUZZER = D9; // Yellow cable pin Buzzer is connected to
 var PIN_PDM_CLOCK = 5;
 var PIN_PDM_DIN = 6;
 var button_watch = [0,0,0,0];
@@ -6,15 +6,14 @@ Bluetooth.setConsole(1);
 backlight = 0;
 Pixl.setLCDPower(false);
 var idRefreshInterval = 0;
-var noiseLevel=-26.30;
 var gainCalibration=0.0;
-var bufA = new Int16Array(256);
-var bufB = new Int16Array(256);
+var bufA = new Int16Array(2500);
+var bufB = new Int16Array(2500);
 var gainChanged = false;
 var buzzerEnabled = false;
 var micEnabled = false;
-var sample_rate = 15625;
-
+var sample_rate = 20000;
+var spl= new Float32Array(1);
 
 function readGainCalibration() {
   fp = require("Storage").open("gaincalib.cfg", 'r');
@@ -45,12 +44,9 @@ var mainmenu = {
   "Exit" : function() { if(gainChanged) {writeGainCalibration();gainChanged=false;} homeScreen(); },
 };
 
-function onSamples(samples) {
-  var sum=0.0;
-  for (i = 1; i < samples.length; i++) {
-    sum+=samples[i]*samples[i];
-  }
-  noiseLevel = 10*log10(sqrt(sum/samples.length));
+function onSamples(samples, sumSquared) {
+  "jit";
+  spl[0]=10*Math.log(sumSquared/samples.length/1073741824)/Math.log(10);
 }
 
 function disableButtons() {
@@ -102,7 +98,7 @@ function homeScreen() {
   g.setFontAlign(-1, -1).drawString("-Settings", 0, 0);
   var level = "-";
   if(micEnabled) {
-    level = noiseLevel;
+    level = spl[0].toFixed(1);
     if(gainCalibration > -0.09 && gainCalibration < 0.08) {
       level += " dBFS";
     } else {
@@ -113,6 +109,7 @@ function homeScreen() {
   g.flip();
   disableButtons();
   button_watch[0] = setWatch(function() { disableButtons(); Pixl.menu(mainmenu); }, BTN1, {  repeat: true,  edge: 'rising'});
+  button_watch[1] = setWatch(switchMicrophoneState, BTN2, {  repeat: true,  edge: 'rising'});
   button_watch[2] = setWatch(switchBuzzerState, BTN3, {  repeat: true,  edge: 'rising'});
 }
 homeScreen();

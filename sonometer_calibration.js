@@ -6,7 +6,7 @@ Bluetooth.setConsole(1);
 backlight = 0;
 Pixl.setLCDPower(false);
 var idRefreshInterval = 0;
-var gainCalibration=0.0;
+var gainCalibration=117.5;
 var bufA = new Int16Array(2500);
 var bufB = new Int16Array(2500);
 var gainChanged = false;
@@ -46,8 +46,7 @@ var mainmenu = {
 };
 
 function onSamples(samples, sumSquared) {
-  "jit";
-  spl[0]=10*Math.log(sumSquared/samples.length/1073741824)/Math.log(10);
+  spl[0]=sumSquared;
 }
 
 function disableButtons() {
@@ -121,11 +120,11 @@ function homeScreen() {
   g.setFontAlign(-1, -1).drawString("-Settings", 0, 0);
   var level = "-";
   if(micEnabled) {
-    level = spl[0].toFixed(1);
+    level = 10*Math.log(spl[0]/bufA.length/1073741824)/2.302585092994046;
     if(gainCalibration > -0.09 && gainCalibration < 0.08) {
-      level += " dBFS";
+      level = spl[0].toFixed(1) + " dBFS";
     } else {
-      level += " dBA";
+      level = (level + gainCalibration).toFixed(1) + " dBA";
     }
   }
   g.setFont("Vector16").setFontAlign(0, 0).drawString(level, g.getWidth()/2, g.getHeight()/2);

@@ -12,6 +12,7 @@ var bufB = new Int16Array(2500);
 var gainChanged = false;
 var buzzerEnabled = false;
 var micEnabled = false;
+var screenEnabled = false;
 var sample_rate = 20000;
 var spl= new Float32Array(1);
 
@@ -82,8 +83,30 @@ function switchMicrophoneState() {
   } else {
     Pdm.stop();
     Pdm.uninit();
+    if(idRefreshInterval > 0) {
+      clearInterval(idRefreshInterval);
+      idRefreshInterval = 0;
+    }
   }
   homeScreen();
+}
+
+function switchScreen() {
+    screenEnabled=!screenEnabled;
+    if(screenEnabled) {
+      LED1.set();
+      homeScreen();
+    } else {
+      LED1.reset();
+      Pixl.setLCDPower(false);
+      if(idRefreshInterval > 0) {
+        clearInterval(idRefreshInterval);
+        idRefreshInterval = 0;
+      }
+      if(micEnabled) {
+        switchMicrophoneState();
+      }
+    }
 }
 
 function homeScreen() {
@@ -111,6 +134,8 @@ function homeScreen() {
   button_watch[0] = setWatch(function() { disableButtons(); Pixl.menu(mainmenu); }, BTN1, {  repeat: true,  edge: 'rising'});
   button_watch[1] = setWatch(switchMicrophoneState, BTN2, {  repeat: true,  edge: 'rising'});
   button_watch[2] = setWatch(switchBuzzerState, BTN3, {  repeat: true,  edge: 'rising'});
+  button_watch[3] = setWatch(switchScreen, BTN4, {  repeat: true,  edge: 'rising'});
 }
-homeScreen();
+
+switchScreen();
 

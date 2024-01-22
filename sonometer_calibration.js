@@ -1,3 +1,5 @@
+//load with this firmware
+//https://github.com/nicolas-f/Espruino/actions/runs/7608361443/artifacts/1184976653
 var PIN_BUZZER = D5; // Yellow cable pin Buzzer is connected to
 var PIN_PDM_CLOCK = 8;
 var PIN_PDM_DIN = 9;
@@ -9,6 +11,9 @@ var idRefreshInterval = 0;
 var gainCalibration=117.5;
 var bufA = new Int16Array(2500);
 var bufB = new Int16Array(2500);
+var filter_num = new Float32Array([0.475780,-0.951561,-0.475780,1.903122,-0.475780,-0.951561,0.475780]);
+var filter_den = new Float32Array([1.000000,-3.118098,2.994414,-0.331733,-0.772673,0.153549,0.074541]);
+var filter_buffer = new Float32Array(filter_num.length+filter_den.length);
 var gainChanged = false;
 var buzzerEnabled = false;
 var micEnabled = false;
@@ -73,6 +78,7 @@ function switchMicrophoneState() {
   if(micEnabled) {
     Pdm.setup({"clock" : PIN_PDM_CLOCK, "din" : PIN_PDM_DIN, frequency: sample_rate});
     Pdm.init(onSamples, bufA, bufB);
+    Pdm.filter_init(filter_num,filter_den,filter_buffer);
     Pdm.start();
     if(idRefreshInterval > 0) {
       clearInterval(idRefreshInterval);

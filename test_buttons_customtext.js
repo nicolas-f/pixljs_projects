@@ -10,12 +10,21 @@ Graphics.prototype.setFontPixeloidSans = function() {
     9|65536
   );
 };
-var PIN_BUZZER = D4;
+var PIN_BUZZER = A0;
+var buzzerEnabled = false;
 var buttonEnabled = false;
 var buttonEnabled2 = false;
 var buttonEnabled3 = false;
 var buttonEnabled4 = false;
 
+function switchBuzzerState1() {
+  buzzerEnabled = !buzzerEnabled;
+  if(buzzerEnabled) {
+    digitalWrite(PIN_BUZZER,255);
+  } else {
+    digitalWrite(PIN_BUZZER,0);
+  }
+}
 
 function display() {
   g.clear();
@@ -42,7 +51,7 @@ display();
 
 
 
-setWatch(function(){buttonEnabled=!buttonEnabled;display();}, BTN, {  repeat: true,  edge: 'rising'});
+setWatch(function(){buttonEnabled=!buttonEnabled;display();switchBuzzerState1();}, BTN, {  repeat: true,  edge: 'rising'});
 setWatch(function(){buttonEnabled2=!buttonEnabled2;display();}, BTN2, {  repeat: true,  edge: 'rising'});
 setWatch(function(){buttonEnabled3=!buttonEnabled3;display();}, BTN3, {  repeat: true,  edge: 'rising'});
 setWatch(function(){buttonEnabled4=!buttonEnabled4;display();}, BTN4, {  repeat: true,  edge: 'rising'});
